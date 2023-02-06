@@ -25,9 +25,6 @@ drawCart(cart);
 // Vérifier le formulaire
 formCheck();
 
-// Calculer le total
-totalCalc();
-
 // Fonction pour supprimer un article du panier
 function productDelete(e) {
   // Récupération de l'identifiant du produit à supprimer
@@ -85,9 +82,16 @@ function drawCart(cart) {
     // Le titre h1 est mis à "Vous n'avez pas d'article dans votre panier"
     document.querySelector("h1").innerHTML = "Vous n'avez pas d'article dans votre panier";
   } else {
-    // La zone du panier est remplie avec les articles du panier
-    zonePanier.innerHTML = cart.map((choix) =>
-      `<article class="cart__item" data-id="${choix.terminalId}" data-couleur="${choix.terminalColor}" data-quantité="${choix.terminalQty}" data-prix="${choix.terminalPrice}"> 
+    Promise.all(idsProduct.map(id =>
+      fetch(`http://localhost:3000/api/products/${id}`)
+        .then(response => response.json())
+    ))
+      .then(data => {
+        const productPrices = data.map(item => item.price);
+
+        // La zone du panier est remplie avec les articles du panier
+        zonePanier.innerHTML = cart.map((choix, index) =>
+          `<article class="cart__item" data-id="${choix.terminalId}" data-couleur="${choix.terminalColor}" data-quantité="${choix.terminalQty}" data-prix="${productPrices[index]}"> 
   <div class="cart__item__img">
     <img src="${choix.terminalImage}" alt="${choix.altTxt}">
   </div>
@@ -95,7 +99,7 @@ function drawCart(cart) {
     <div class="cart__item__content__titlePrice">
       <h2>${choix.terminalName}</h2>
       <span>couleur : ${choix.terminalColor}</span>
-      <p data-prix="${choix.terminalPrice}">${choix.terminalPrice} €</p>
+      <p data-prix="${productPrices[index]}">${productPrices[index]} €</p>
     </div>
     <div class="cart__item__content__settings">
       <div class="cart__item__content__settings__quantity">
@@ -108,15 +112,29 @@ function drawCart(cart) {
     </div>
   </div>
 </article>`
-    );
-    // Changer le titre de la page en indiquant le nombre de produits dans le panier
-    document.title = cart.length + " produits dans votre panier";
+        );
+        // Changer le titre de la page en indiquant le nombre de produits dans le panier
+        document.title = cart.length + " produits dans votre panier";
 
-    // Ajouter un écouteur d'événement pour tous les éléments avec la classe "itemQuantity" pour appeler la fonction "productEdit" lorsque la quantité d'un produit est modifiée
-    document.querySelectorAll(".itemQuantity").forEach(input => input.addEventListener("change", productEdit));
+        // Ajouter un écouteur d'événement pour tous les éléments avec la classe "itemQuantity" pour appeler la fonction "productEdit" lorsque la quantité d'un produit est modifiée
+        document.querySelectorAll(".itemQuantity").forEach(input => input.addEventListener("change", productEdit));
 
-    // Ajouter un écouteur d'événement pour tous les éléments avec la classe "deleteItem" pour appeler la fonction "productDelete" lorsqu'un produit est supprimé
-    document.querySelectorAll(".deleteItem").forEach(input => input.addEventListener("click", productDelete));
+        // Ajouter un écouteur d'événement pour tous les éléments avec la classe "deleteItem" pour appeler la fonction "productDelete" lorsqu'un produit est supprimé
+        document.querySelectorAll(".deleteItem").forEach(input => input.addEventListener("click", productDelete));
+
+        let totalQuantity = 0; // Initialiser la quantité totale à zéro
+        let totalPrice = 0; // Initialiser le prix total à zéro
+
+        // Boucle pour parcourir le tableau "cart" et calculer la quantité totale et le prix total des produits
+        for (let i = 0; i < cart.length; i++) {
+          totalQuantity += cart[i].terminalQty;
+          totalPrice += cart[i].terminalQty * productPrices[i];
+        }
+
+        // Afficher la quantité totale et le prix total des produits sur la page web
+        document.querySelector('#totalQuantity').innerHTML = totalQuantity;
+        document.querySelector('#totalPrice').innerHTML = totalPrice.toFixed(2);
+      })
   }
 }
 
@@ -209,19 +227,3 @@ function formCheck() {
     }
   });
 }
-
-// Fonction pour calculer le total de la quantité et du prix des produits
-function totalCalc() {
-  let totalQuantity = 0; // Initialiser la quantité totale à zéro
-  let totalPrice = 0; // Initialiser le prix total à zéro
-  
-  // Boucle pour parcourir le tableau "cart" et calculer la quantité totale et le prix total des produits
-  for (let i = 0; i < cart.length; i++) {
-  totalQuantity += cart[i].terminalQty;
-  totalPrice += cart[i].terminalQty * cart[i].terminalPrice;
-  }
-  
-  // Afficher la quantité totale et le prix total des produits sur la page web
-  document.querySelector('#totalQuantity').innerHTML = totalQuantity;
-  document.querySelector('#totalPrice').innerHTML = totalPrice.toFixed(2);
-  }
