@@ -116,7 +116,13 @@ function addPanier(data) {
       localStorage.setItem("cart", JSON.stringify(cart));
       
       // Affichage d'un message de confirmation.
-      alert(productData.terminalName + " has been added to your cart. Cart quantity: " + storedProductData.terminalQty);
+      buttonCart.innerHTML = "Produit ajouté";
+      buttonCart.style.backgroundColor = "green";
+      buttonCart.style.transition = "background-color 0.5s ease-in-out";
+      setTimeout(function () {
+        buttonCart.innerHTML = "Ajouter au panier";
+        buttonCart.style.backgroundColor = "";
+      }, 1000); // 1 seconde
       
       // Affichage du contenu du panier dans la console.
       console.log(cart);

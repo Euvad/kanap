@@ -38,8 +38,6 @@ function productDelete(e) {
     cart.splice(index, 1);
     localStorage.setItem("cart", JSON.stringify(cart));
     drawCart(cart);
-    // Recharger la page pour afficher les changements
-    document.location.reload();
   }
 }
 // Fonction pour éditer la quantité d'un produit dans le panier
@@ -62,8 +60,6 @@ function productEdit(e) {
       localStorage.setItem("cart", JSON.stringify(cart));
       // Redessine le panier avec les modifications apportées
       drawCart(cart);
-      // Recharge la page pour afficher les modifications
-      document.location.reload();
     }
   }
 }
