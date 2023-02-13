@@ -193,10 +193,9 @@ function formCheck() {
         .then(response => {
           // Supprimer les données de commande précédentes de localStorage
           localStorage.clear();
-          // Stocker l'ID de commande dans localStorage
-          localStorage.setItem("order_id", JSON.stringify(response));
+          let orderId = response.orderId;
           // Rediriger l'utilisateur vers la page de confirmation
-          window.location.assign('http://localhost/site/front/html/confirmation.html');
+          window.location.assign(`http://localhost/front/html/confirmation.html?response=${orderId}`);
         })
         .catch(error => console.error('Error:', error));
     } else {
